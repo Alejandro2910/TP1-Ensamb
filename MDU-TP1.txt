@@ -1,0 +1,8 @@
+Bienvenido al manual de usuario de la calculadora
+
+Estos son los simples pasos para utilizarla:
+
+1. Utilice siempre numeros de tres digitos, por ejemplo el numero 10, escriba 010. El numero 1, de esta manera: 001 y así sucesivamente.
+2. La estructura de las operaciones son (xxx)/(xxx)(+-/*)(xxx)/(xxx) y por lo tanto si algun caracter incorrecto se encuantra en la posicion 
+equivocada, el programa le pedira que reingrese los datos.
+3. Utilice el caracter c para borrar y s para salir en cualquier momento.

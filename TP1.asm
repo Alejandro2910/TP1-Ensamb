@@ -116,13 +116,13 @@ preprefin:
     jmp prefin
     
 leeoper:
-        mov b,1   ;Cambiamos el estado de nuestra bandera
+        mov b,1              ;Cambiamos el estado de nuestra bandera
         call leecar          ;Mandamos llamar al procedimiento leecar el cual lee un caracter
-        cmp al,'s'            ;Comparamos el caracter leido con 's'
-        je preprefin              ;Si es igual salimos del programa
-        cmp e,1   ;Comparamos la variable e con 1
-        je prepremenu1                ;Si es igual quiere decir que hay error y saltamos a menu1
-        mov op,al              ;Almacenamos el operador leido en la variable op
+        cmp al,'s'           ;Comparamos el caracter leido con 's'
+        je preprefin         ;Si es igual salimos del programa
+        cmp e,1              ;Comparamos la variable e con 1
+        je prepremenu1       ;Si es igual quiere decir que hay error y saltamos a menu1
+        mov op,al            ;Almacenamos el operador leido en la variable op
 
         mov b,0   ;Cambiamos el estado de nuestra bandera
         mov cx, 3
@@ -200,12 +200,12 @@ siga:
         call calcNum2
         cmp op,'+'            ;Comparamos el operador con '+'
         je funcsuma          ;Si es igual saltamos a funcsuma
-        ;cmp op,'-'            ;Y asi con las demas comparaciones
-        ;je funcresta
-        ;cmp op,'*'
-        ;je funcmulti
-        ;cmp op,'/'
-        ;je funcdivi
+        cmp op,'-'            ;Y asi con las demas comparaciones
+        je funcresta
+        cmp op,'*'
+        je funcmulti
+        cmp op,'/'
+        je funcdivi
         mov ah,9                ;Si no es igual a ningun operador entonces
         lea dx,msg3
         int 21h   ;Imprimimos el mensaje de error de expresion
@@ -217,15 +217,15 @@ siga:
 funcsuma:
         call sumaproc      ;Mandamos llamar el procedimiento sumaproc
         jmp menu1              ;Al finalizar el procedimiento saltamos a menu1 que esta al inicio
-;funcresta:
-;        call restaproc    ;Mandamos llamar el procedimiento restaproc
-;        jmp menu1              ;Al finalizar el procedimiento saltamos a menu1 que esta al inicio
-;funcmulti:
-;        call multiproc    ;Mandamos llamar el procedimiento multiproc
-;        jmp menu1              ;Al finalizar el procedimiento saltamos a menu1 que esta al inicio
-;funcdivi:
-;        call diviproc      ;Mandamos llamar el procedimiento diviproc
-;        jmp menu1              ;Al finalizar el procedimiento saltamos a menu1 que esta al inicio
+funcresta:
+        call restaproc    ;Mandamos llamar el procedimiento restaproc
+        jmp menu1              ;Al finalizar el procedimiento saltamos a menu1 que esta al inicio
+funcmulti:
+        call multiproc    ;Mandamos llamar el procedimiento multiproc
+        jmp menu1              ;Al finalizar el procedimiento saltamos a menu1 que esta al inicio
+funcdivi:
+        call diviproc      ;Mandamos llamar el procedimiento diviproc
+        jmp menu1              ;Al finalizar el procedimiento saltamos a menu1 que esta al inicio
 
 fin:
         mov ah,4ch
@@ -422,9 +422,7 @@ fin:
         mov dx, 0
         mov dh, al
         ;error area
-        mov ah, 9
-        lea dx, debug
-        int 21h
+        
         
         mov ah, 02h
         add dh, 30h ;imprime Decenas
@@ -446,127 +444,192 @@ fin:
 
 
 ;/**********************************RESTA
-;   restaproc proc near
-;        mov al,v1              ;Pasamos nuestro primer valor a al
-;        sub al,30h            ;Le restamos 30h para convertirlo a numero
-;        mov bl,al              ;Y lo pasamos a bl
-;        mov al,v2              ;Pasamos nuestro segundo valor a al
-;        sub al,30h            ;Le restamos 30h para convertirlo a numero
-;        sub bl,al              ;Restamos bl - al
-;
-;        mov ah,9
-;        lea dx,msg1
-;        int 21h   ;Imprimimos el mensaje de resultado
-;        mov ah,2                ;Servicio 2 imprime un caracter almacenado en dl
-;        mov dl,bl              ;Pasamos a dl el resultado
-;        mov v1,dl              ;Respaldamos tambien el resultado en v1
-;        add dl,30h            ;Sumamos 30h a dl para convertirlo a caracter
-;        int 21h   ;Imprimimos el resultado
-;     RET
-;   restaproc endp
+   restaproc proc near
+        mov ax,v1            ;Le restamos 30h para convertirlo a numero
+        mov bx,ax              ;Y lo pasamos a bl
+        mov ax,v2           ;Le restamos 30h para convertirlo a numero
+        sub bx,ax              ;Restamos bl - al
+
+        mov ah,9
+        lea dx,msg1
+        int 21h   ;Imprimimos el mensaje de resultado
+        
+        mov cx, 100
+        mov ax, bx
+        div cx
+        mov bx, dx
+        mov dx, ax
+        
+        mov ah, 02h
+        add dx, 30h ;imprime Centecimas
+        int 21h
+        
+        ;error area
+        mov cx, 10
+        mov ax, bx
+        div cx
+        mov bh, ah
+        mov dx, 0
+        mov dh, al
+        ;error area
+        
+        
+        mov ah, 02h
+        add dh, 30h ;imprime Decenas
+        int 21h
+        
+        mov dh, bh
+        add dh, 30h ;imprime Unidades
+        int 21h
+     RET
+   restaproc endp
 ;/***************************************
 
 
 
 
 ;/*************************MULTIPLICACI?N
-;   multiproc proc near
-;        mov al,v1              ;Pasamos nuestro primer valor a al
-;        sub al,30h            ;Le restamos 30h para convertirlo a numero
-;        mov bl,al              ;Y lo pasamos a bl
-;        mov al,v2              ;Pasamos nuestro segundo valor a al
-;        sub al,30h            ;Le restamos 30h para convertirlo a numero
-;
-;        and ah,00h            ;Le aplicamos una mascara a la parte superior de AX para que quede con ceros 0000
-;        and bh,00h            ;Le aplicamos una mascara a la parte superior de BX para que quede con ceros 0000
-;        mul bx      ;Multiplicamos AX con BX
-;        mov bl,al              ;El resultado que esta en al lo pasamos a bl
-;        
-;        push ax    ;guardamos el resultado de la operacion
-;
-;        mov ah,9
-;        lea dx,msg1
-;        int 21h   ;Imprimimos el mensaje de resultado
-;        
-;        
-;        
-;        pop ax   ;sacamos el resultado de la multiplicacion
-;        
-;        push dx ;no alteramos lo registros
-;        push ax
-;        push cx
-;        
-;        mov cx,0
-;        mov dx,0
-;        
-;        mov dl, 10
-;        div dl
-;        mov ch,ah ;guardamos las unidades
-;        mov dx,0
-;        mov dl,al
-;        
-;        mov ah,02h
-;        add dl,30h ;;imprime decenas
-;        int 21h
-;        
-;        mov dl,ch
-;        add dl,30h ;;imprime unidades
-;        int 21h
-;        
-;        pop cx
-;        pop ax
-;        pop dx ;dejamos los valores como estaban para no da?ar el programa
-;
-;       
-;     RET
-;   multiproc endp
+   multiproc proc near
+        mov ax,v1             
+        mov bx,ax              ;Y lo pasamos a bl
+        mov ax,v2             
+        mul bx                 ;Multiplicamos AX con BX
+        
+        push ax    ;guardamos el resultado de la operacion
+
+        mov ah,9
+        lea dx,msg1
+        int 21h   ;Imprimimos el mensaje de resultado
+        
+        
+        
+        pop ax   ;sacamos el resultado de la multiplicacion
+        
+        push dx ;no alteramos lo registros
+        push ax
+        push cx
+        
+        mov dx,0
+        
+        mov cx, 10000
+        div cx
+        mov bx, dx
+        mov dx, ax
+        
+        mov ah,02h
+        add dx,30h ;imprime Diez-Milesimas
+        int 21h
+        
+        mov cx, 1000
+        mov ax, bx
+        div cx
+        mov bx, dx
+        mov dx, ax
+        
+        mov ah,02h
+        add dx,30h ;imprime Milesimas
+        int 21h
+        
+        mov cx, 100
+        mov ax, bx
+        div cx
+        mov bx, dx
+        mov dx, ax
+        
+        mov ah, 02h
+        add dx, 30h ;imprime Centecimas
+        int 21h
+        
+        ;error area
+        mov cx, 10
+        mov ax, bx
+        div cx
+        mov bh, ah
+        mov dx, 0
+        mov dh, al
+        ;error area
+        
+        
+        mov ah, 02h
+        add dh, 30h ;imprime Decenas
+        int 21h
+        
+        mov dh, bh
+        add dh, 30h ;imprime Unidades
+        int 21h
+        
+        pop cx
+        pop ax
+        pop dx ;dejamos los valores como estaban para no da?ar el programa
+
+       
+     RET
+   multiproc endp
 ;/***************************************
 
 
 ;/*******************************DIVISI?N
-;   diviproc proc near
-;        mov al,v1              ;Pasamos nuestro primer valor a al
-;        sub al,30h            ;Le restamos 30h para convertirlo a numero
-;        mov bl,al              ;Y lo pasamos a bl
-;        mov al,v2              ;Pasamos nuestro segundo valor a al
-;        sub al,30h            ;Le restamos 30h para convertirlo a numero
-;
-;        and ah,00h            ;Le aplicamos una mascara a la parte superior de AX para que quede con ceros 0000
-;        and bh,00h            ;Le aplicamos una mascara a la parte superior de BX para que quede con ceros 0000
-;
-;        xchg ax,bx            ;Intercambiamos los valores de AX con BX y viceversa
-;        cwd               ;Cambiamos AX de word a dobleword para que tenga capacidad el programa de dividir
-;        div bx      ;Dividimos.. Siempre divide AX/BX el resultado lo almacena en AX, el residuo queda en DX
-;        mov bx,ax              ;Pasamos el resultado a bx
-;        mov b,dl                ;Pasamos el residuo a b
-;
-;        mov ah,9
-;        lea dx,msg1
-;        int 21h   ;Imprimimos el mensaje de resultado
-;
-;        mov ah,2
-;        mov dx,bx              ;Pasamos a dx el resultado
-;        mov v1,dl              ;Respaldamos tambien el resultado en v1
-;        add dl,30h            ;Sumamos 30h a dl para convertirlo a caracter
-;        int 21h   ;Imprimimos el resultado
-;
-;        cmp b,0   ;Comparamos la variable que contiene el residuo con 0
-;        jg residuo            ;Si es mayor de 0 quiere decir que hay residuo y saltamos a la etiqueta residuo
-;        jmp dsal                ;Si es igual a 0 el residuo no hay residuo y saltamos a la etiqueta dsal
-;
-;residuo:
-;        mov ah,9                ;Servicio 9 para imprimir cadenas
-;        lea dx,resi          ;Seleccionamos la cadena contenida en resi
-;        int 21h   ;Imprimimos
-;
-;        mov ah,2                ;Servicio 2 para imprimir un caracter contenido en dl
-;        mov dl,b                ;Pasamos a dl el valor del residuo
-;        add dl,30h            ;Sumamos 30h a dl para convertirlo a caracter
-;        int 21h   ;Imprimimos el resultado
-;
-;dsal:
-;     RET
-;   diviproc endp
+   diviproc proc near
+        mov ax,v1              ;Pasamos nuestro primer valor a al
+
+        mov bx,ax              ;Y lo pasamos a bl
+        mov ax,v2              ;Pasamos nuestro segundo valor a al
+
+        xchg ax,bx            ;Intercambiamos los valores de AX con BX y viceversa
+        cwd               ;Cambiamos AX de word a dobleword para que tenga capacidad el programa de dividir
+        div bx      ;Dividimos.. Siempre divide AX/BX el resultado lo almacena en AX, el residuo queda en DX
+        mov bx,ax              ;Pasamos el resultado a bx
+        mov b,dl                ;Pasamos el residuo a b
+
+        mov ah,9
+        lea dx,msg1
+        int 21h   ;Imprimimos el mensaje de resultado
+             
+        mov cx, 100
+        mov ax, bx
+        div cx
+        mov bx, dx
+        mov dx, ax
+        
+        mov ah, 02h
+        add dx, 30h ;imprime Centecimas
+        int 21h
+        
+        ;error area
+        mov cx, 10
+        mov ax, bx
+        div cx
+        mov bh, ah
+        mov dx, 0
+        mov dh, al
+        ;error area
+        
+        
+        mov ah, 02h
+        add dh, 30h ;imprime Decenas
+        int 21h
+        
+        mov dh, bh
+        add dh, 30h ;imprime Unidades
+        int 21h
+
+        cmp b,0   ;Comparamos la variable que contiene el residuo con 0
+        jg residuo            ;Si es mayor de 0 quiere decir que hay residuo y saltamos a la etiqueta residuo
+        jmp dsal                ;Si es igual a 0 el residuo no hay residuo y saltamos a la etiqueta dsal
+
+residuo:
+        mov ah,9                ;Servicio 9 para imprimir cadenas
+        lea dx,resi          ;Seleccionamos la cadena contenida en resi
+        int 21h   ;Imprimimos
+
+        mov ah,2                ;Servicio 2 para imprimir un caracter contenido en dl
+        mov dl,b                ;Pasamos a dl el valor del residuo
+        add dl,30h            ;Sumamos 30h a dl para convertirlo a caracter
+        int 21h   ;Imprimimos el resultado
+
+dsal:
+     RET
+   diviproc endp
 ;/***************************************
 
 
